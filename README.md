@@ -1,51 +1,88 @@
-# ESP32 Project - Monitoreo de Máquinas de Premios y Videojuegos
+# ESP32PanelControlReact
 
-Este proyecto consiste en una web de monitoreo en tiempo real para sistemas basados en ESP32, como grúas de peluches, maquinitas de premios, ticketeras y videojuegos similares. Permite visualizar el estado de cada máquina conectada (encendida, jugando, entrega de premio, etc.) y generar reportes de uso y actividades.
+Aplicación web para el **monitoreo y administración en tiempo real de máquinas de premios y videojuegos** mediante dispositivos ESP32, desarrollada en React y TypeScript.
+
+## Descripción
+
+Este proyecto permite visualizar y administrar el estado de máquinas como grúas, maquinitas de premios, ticketeras y videojuegos similares. Los dispositivos ESP32 envían datos en tiempo real a través de una API, y la interfaz muestra su actividad, reportes y estadísticas para control administrativo.
 
 ## Características principales
 
-- **Monitoreo en tiempo real** del funcionamiento de máquinas conectadas vía ESP32.
-- Detección de eventos: encendido, actividad de juego, entrega de premios, etc.
-- Dashboard y reportes visuales para administración.
-- Soporte para múltiples tipos de máquinas (grúa, ticketera, videojuegos).
-- Acceso mediante sistema de login.
+- **Monitoreo en tiempo real** del funcionamiento de cada máquina conectada.
+- Detección y visualización de eventos: encendido, juego activo, entrega de premios, etc.
+- Dashboard con estado general y acceso a reportes visuales.
+- Soporte para múltiples tipos de máquinas: grúa, expendedora, videojuegos, ticketera.
+- Gestión de dispositivos (alta, edición, baja) desde el panel.
+- Analíticas y reportes históricos por máquina.
+- Acceso mediante sistema de login administrativo.
 
 ## Estructura del proyecto
 
-- Archivos PHP para gestión de datos, usuarios y reportes.
-- Archivos HTML para interfaces de dashboard, login y reportes.
-- Archivos de configuración (`config.php`, `config.json`, `users.json`).
-- Scripts SQL y base de datos para almacenamiento y consultas.
-- Carpetas auxiliares:  
-  - `conn/`: conexiones de base de datos  
-  - `css/`: estilos  
-  - `img/`: imágenes  
-  - `expendedora/`, `script/`: scripts y utilidades varias
+- **Frontend:** React + TypeScript, rutas protegidas y dashboard interactivo.
+- **Backend:** Node.js (Express), API REST para recepción y consulta de datos.
+- **WebSocket:** Actualizaciones en tiempo real.
+- **Base de datos:** MySQL (ejemplo clásico, adaptable a otras soluciones).
+- Carpetas principales:
+  - `src/` - Código fuente de React.
+  - `server/` - Backend Express/Node.
+  - `public/` - Recursos estáticos.
+  - `sql/` - Scripts de base de datos de ejemplo.
 
 ## Requisitos
 
-- **Servidor web con soporte PHP y MySQL** (por ejemplo, AppServ, XAMPP, WAMP, etc.).
-- Una o varias máquinas con ESP32, programadas para enviar datos a la web.
-- Navegador web moderno para visualizar el dashboard.
+- Node.js (>= 18)
+- npm o yarn
+- MySQL u otra base de datos compatible
+- Dispositivos ESP32 programados para enviar información a la API
 
 ## Instalación
 
-1. **Clona o descarga el repositorio** en tu servidor web.
-2. **Importa los scripts SQL** (`esp32_report (3).sql`, `login_system.sql`) en tu base de datos MySQL.
-3. **Configura la conexión a la base de datos** editando los archivos `config.php` y/o `config.json`.
-4. **Asegúrate de que los ESP32 estén configurados** para enviar datos HTTP a las rutas correspondientes de esta web.
-5. Accede mediante el navegador a `login.html` o `dashboard.html` para comenzar a usar el sistema.
+1. **Clona este repositorio:**
+   ```sh
+   git clone https://github.com/Rothezee/Esp32PanelControlReact.git
+   cd Esp32PanelControlReact
+   ```
+
+2. **Instala dependencias del frontend y backend:**
+   ```sh
+   npm install
+   cd server
+   npm install
+   cd ..
+   ```
+
+3. **Configura la base de datos:**
+   - Crea una base de datos MySQL.
+   - Ejecuta los scripts SQL de ejemplo proporcionados en la carpeta `sql/`.
+   - Ajusta los parámetros de conexión en los archivos de configuración (`server/.env`, etc.).
+
+4. **Configura los ESP32** para enviar datos HTTP a las rutas de la API (`/api/esp32`).
+
+5. **Inicia el backend:**
+   ```sh
+   cd server
+   npm run start
+   ```
+
+6. **Inicia el frontend:**
+   ```sh
+   npm run dev
+   ```
+
+7. Accede a [http://localhost:5173](http://localhost:5173) o el puerto configurado.
 
 ## Uso
 
 - Ingresa con tu usuario y contraseña.
-- Visualiza el estado de todas las máquinas conectadas desde el dashboard.
-- Consulta reportes de actividad, premios entregados y más.
-- Administra usuarios y configuraciones según permisos (No tiene sistema de registro dado que solo es una pagina para administradores).
+- Visualiza el dashboard con todas las máquinas conectadas.
+- Consulta reportes de actividad, premios y estadísticas.
+- Agrega, edita o elimina dispositivos desde el panel.
+- Administra usuarios y configuraciones (solo para administradores).
 
 ## Notas
 
-- El sistema es extendible y puedes agregar más tipos de máquinas o sensores conectados al ESP32.
+- El sistema es extensible: puedes agregar más tipos de máquinas o sensores conectados al ESP32.
+- Para dudas o contribuciones, abre un issue o pull request en este repositorio.
 
 ---
 
