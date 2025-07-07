@@ -456,23 +456,23 @@ export default function ArduinoProgrammer({ deviceId, onClose, onConfigSave }: A
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black dark:bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+        className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center">
             <Cpu className="w-6 h-6 text-blue-600 mr-3" />
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
               Programador Arduino - {deviceId}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -480,7 +480,7 @@ export default function ArduinoProgrammer({ deviceId, onClose, onConfigSave }: A
 
         <div className="flex h-[calc(90vh-80px)]">
           {/* Sidebar */}
-          <div className="w-64 bg-gray-50 border-r border-gray-200 p-4">
+          <div className="w-64 bg-gray-50 dark:bg-gray-900 border-r border-gray-200 dark:border-gray-700 p-4">
             <div className="space-y-2">
               {steps.map((step, index) => {
                 const Icon = step.icon
@@ -493,12 +493,12 @@ export default function ArduinoProgrammer({ deviceId, onClose, onConfigSave }: A
                     key={step.id}
                     className={`flex items-center p-3 rounded-lg transition-colors ${
                       isActive 
-                        ? 'bg-blue-100 text-blue-700 border border-blue-200' 
+                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700' 
                         : isCompleted
-                        ? 'bg-green-50 text-green-700'
+                        ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400'
                         : isDisabled
-                        ? 'text-gray-400'
-                        : 'text-gray-600 hover:bg-gray-100'
+                        ? 'text-gray-400 dark:text-gray-600'
+                        : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                     }`}
                   >
                     <Icon className="w-4 h-4 mr-3" />
@@ -514,7 +514,7 @@ export default function ArduinoProgrammer({ deviceId, onClose, onConfigSave }: A
 
           {/* Content */}
           <div className="flex-1 flex flex-col">
-            <div className="flex-1 p-6 overflow-y-auto">
+            <div className="flex-1 p-6 overflow-y-auto bg-white dark:bg-gray-800">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentStep}
@@ -529,7 +529,7 @@ export default function ArduinoProgrammer({ deviceId, onClose, onConfigSave }: A
             </div>
 
             {/* Footer */}
-            <div className="border-t border-gray-200 p-6">
+            <div className="border-t border-gray-200 dark:border-gray-700 p-6 bg-white dark:bg-gray-800">
               <div className="flex justify-between">
                 <button
                   onClick={handlePrev}
@@ -538,7 +538,7 @@ export default function ArduinoProgrammer({ deviceId, onClose, onConfigSave }: A
                 >
                   Anterior
                 </button>
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
                   Paso {currentStep + 1} de {steps.length}
                 </div>
                 {currentStep < steps.length - 1 ? (

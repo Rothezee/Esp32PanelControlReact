@@ -161,33 +161,33 @@ export default function InteractiveCalendar({ onIntervalConfirm, onDateRangeChan
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg"
+      className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg"
     >
       <div className="flex items-center gap-3 mb-6">
         <Calendar className="w-6 h-6 text-blue-600" />
-        <h2 className="text-2xl font-bold text-gray-800">Calendario Interactivo para Reportes</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Calendario Interactivo para Reportes</h2>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Calendario */}
         <div className="lg:col-span-2">
-          <div className="bg-gray-50 rounded-lg p-4">
+          <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
             {/* Header del calendario */}
             <div className="flex items-center justify-between mb-4">
               <button
                 onClick={handlePrevMonth}
-                className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
               
-              <h3 className="text-lg font-semibold text-gray-800">
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                 {months[currentDate.getMonth()]} {currentDate.getFullYear()}
               </h3>
               
               <button
                 onClick={handleNextMonth}
-                className="p-2 rounded-lg hover:bg-gray-200 transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -196,7 +196,7 @@ export default function InteractiveCalendar({ onIntervalConfirm, onDateRangeChan
             {/* Días de la semana */}
             <div className="grid grid-cols-7 gap-1 mb-2">
               {daysOfWeek.map(day => (
-                <div key={day} className="h-8 flex items-center justify-center text-sm font-medium text-gray-600">
+                <div key={day} className="h-8 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-300">
                   {day}
                 </div>
               ))}
@@ -232,9 +232,9 @@ export default function InteractiveCalendar({ onIntervalConfirm, onDateRangeChan
         {/* Panel lateral */}
         <div className="space-y-4">
           {/* Instrucciones */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <h4 className="font-semibold text-blue-800 mb-2">Instrucciones:</h4>
-            <div className="text-sm text-blue-700 space-y-1">
+          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">Instrucciones:</h4>
+            <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
               {!startDate && <p>• Haz clic en un día para seleccionar el inicio</p>}
               {startDate && !endDate && <p>• Haz clic en otro día para seleccionar el fin</p>}
               {startDate && endDate && <p>• Intervalo seleccionado. Confirma o selecciona uno nuevo</p>}
@@ -248,22 +248,22 @@ export default function InteractiveCalendar({ onIntervalConfirm, onDateRangeChan
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="bg-gray-50 border border-gray-200 rounded-lg p-4"
+                className="bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-4"
               >
-                <h4 className="font-semibold text-gray-800 mb-3">Intervalo Actual:</h4>
+                <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-3">Intervalo Actual:</h4>
                 <div className="space-y-2 text-sm">
                   <div>
-                    <span className="font-medium">Inicio:</span>
+                    <span className="font-medium text-gray-700 dark:text-gray-300">Inicio:</span>
                     <div className="text-blue-600 font-medium">{formatDate(startDate)}</div>
                   </div>
                   {endDate && (
                     <>
                       <div>
-                        <span className="font-medium">Fin:</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Fin:</span>
                         <div className="text-green-600 font-medium">{formatDate(endDate)}</div>
                       </div>
                       <div className="border-t pt-2">
-                        <span className="font-medium">Duración:</span>
+                        <span className="font-medium text-gray-700 dark:text-gray-300">Duración:</span>
                         <div className="text-purple-600 font-bold">
                           {Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1} días
                         </div>
@@ -308,13 +308,13 @@ export default function InteractiveCalendar({ onIntervalConfirm, onDateRangeChan
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-green-50 border border-green-200 rounded-lg p-4"
+                className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4"
               >
                 <div className="flex items-center gap-2 mb-2">
                   <CheckCircle className="w-4 h-4 text-green-600" />
-                  <h4 className="font-semibold text-green-800">Período Confirmado</h4>
+                  <h4 className="font-semibold text-green-800 dark:text-green-300">Período Confirmado</h4>
                 </div>
-                <div className="text-sm text-green-700">
+                <div className="text-sm text-green-700 dark:text-green-300">
                   <div>Del {formatDate(confirmedInterval.start)}</div>
                   <div>al {formatDate(confirmedInterval.end)}</div>
                   <div className="font-bold mt-1">({confirmedInterval.days} días)</div>
