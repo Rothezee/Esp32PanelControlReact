@@ -124,66 +124,41 @@ export default function ReportsPage() {
 
       {/* Controls */}
       <div className="card p-6">
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="flex flex-wrap items-center gap-4">
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setViewMode('table')}
-                className={`btn ${viewMode === 'table' ? 'btn-primary' : 'btn-secondary'}`}
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                Tabla
-              </button>
-              <button
-                onClick={() => {
-                  setViewMode('calendar')
-                  setShowCalendar(true)
-                }}
-                className={`btn ${viewMode === 'calendar' ? 'btn-primary' : 'btn-secondary'}`}
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                Calendario
-              </button>
-            </div>
-
-            {viewMode === 'table' && (
-              <div className="flex items-center gap-3">
-                <div className="flex items-center">
-                  <label htmlFor="startDate" className="text-sm font-medium text-gray-700 mr-2">
-                    Desde:
-                  </label>
-                  <input
-                    type="date"
-                    id="startDate"
-                    value={startDate}
-                    onChange={(e) => setStartDate(e.target.value)}
-                    className="input"
-                  />
-                </div>
-                <div className="flex items-center">
-                  <label htmlFor="endDate" className="text-sm font-medium text-gray-700 mr-2">
-                    Hasta:
-                  </label>
-                  <input
-                    type="date"
-                    id="endDate"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    className="input"
-                  />
-                </div>
-              </div>
-            )}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={() => setViewMode('table')}
+              className={`btn ${viewMode === 'table' ? 'btn-primary' : 'btn-secondary'}`}
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Tabla
+            </button>
+            <button
+              onClick={() => {
+                setViewMode('calendar')
+                setShowCalendar(true)
+              }}
+              className="btn btn-secondary bg-gradient-to-r from-blue-500 to-green-500 text-white hover:from-blue-600 hover:to-green-600 border-0"
+            >
+              <Calendar className="w-4 h-4 mr-2" />
+              📅 Seleccionar Período
+            </button>
           </div>
 
-          <button 
-            onClick={handleExportData}
-            disabled={!reports || reports.length === 0}
-            className="btn btn-secondary"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            Exportar CSV
-          </button>
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-lg">
+              <span className="font-medium">Período actual:</span> {format(new Date(startDate), 'dd/MM/yyyy')} - {format(new Date(endDate), 'dd/MM/yyyy')}
+            </div>
+            
+            <button 
+              onClick={handleExportData}
+              disabled={!reports || reports.length === 0}
+              className="btn btn-secondary"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Exportar CSV
+            </button>
+          </div>
         </div>
       </div>
 

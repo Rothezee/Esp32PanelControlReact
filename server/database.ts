@@ -37,6 +37,7 @@ async function createTables() {
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
         type TEXT NOT NULL,
+        locality TEXT DEFAULT '',
         fields TEXT DEFAULT '[]',
         last_heartbeat DATETIME DEFAULT CURRENT_TIMESTAMP,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP

@@ -132,15 +132,15 @@ export default function InteractiveCalendar({ onIntervalConfirm, onDateRangeChan
       let dayClass = 'h-10 w-10 flex items-center justify-center rounded-lg cursor-pointer transition-all duration-200 hover:bg-blue-100 '
       
       if (isStart) {
-        dayClass += 'bg-blue-500 text-white font-bold shadow-md hover:bg-blue-600 '
+        dayClass += 'bg-blue-500 dark:bg-blue-600 text-white font-bold shadow-md hover:bg-blue-600 dark:hover:bg-blue-700 '
       } else if (isEnd) {
-        dayClass += 'bg-green-500 text-white font-bold shadow-md hover:bg-green-600 '
+        dayClass += 'bg-green-500 dark:bg-green-600 text-white font-bold shadow-md hover:bg-green-600 dark:hover:bg-green-700 '
       } else if (isInRange) {
-        dayClass += 'bg-blue-200 text-blue-800 font-medium '
+        dayClass += 'bg-blue-200 dark:bg-blue-800 text-blue-800 dark:text-blue-200 font-medium '
       } else if (isToday) {
-        dayClass += 'bg-gray-200 font-medium '
+        dayClass += 'bg-gray-200 dark:bg-gray-600 text-gray-900 dark:text-gray-100 font-medium '
       } else {
-        dayClass += 'text-gray-700 hover:text-blue-600 '
+        dayClass += 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 '
       }
 
       days.push(
@@ -165,7 +165,7 @@ export default function InteractiveCalendar({ onIntervalConfirm, onDateRangeChan
     >
       <div className="flex items-center gap-3 mb-6">
         <Calendar className="w-6 h-6 text-blue-600" />
-        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Calendario Interactivo para Reportes</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">📅 Selecciona el Período de Reportes</h2>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -176,7 +176,7 @@ export default function InteractiveCalendar({ onIntervalConfirm, onDateRangeChan
             <div className="flex items-center justify-between mb-4">
               <button
                 onClick={handlePrevMonth}
-                className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors"
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -187,7 +187,7 @@ export default function InteractiveCalendar({ onIntervalConfirm, onDateRangeChan
               
               <button
                 onClick={handleNextMonth}
-                className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                className="p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 transition-colors"
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -211,20 +211,20 @@ export default function InteractiveCalendar({ onIntervalConfirm, onDateRangeChan
           {/* Leyenda */}
           <div className="mt-4 flex flex-wrap gap-4 text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-blue-500 rounded"></div>
-              <span>Fecha de inicio</span>
+              <div className="w-4 h-4 bg-blue-500 dark:bg-blue-600 rounded"></div>
+              <span className="text-gray-700 dark:text-gray-300">Fecha de inicio</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-green-500 rounded"></div>
-              <span>Fecha de fin</span>
+              <div className="w-4 h-4 bg-green-500 dark:bg-green-600 rounded"></div>
+              <span className="text-gray-700 dark:text-gray-300">Fecha de fin</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-blue-200 rounded"></div>
-              <span>Período seleccionado</span>
+              <div className="w-4 h-4 bg-blue-200 dark:bg-blue-800 rounded"></div>
+              <span className="text-gray-700 dark:text-gray-300">Período seleccionado</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 bg-gray-200 rounded"></div>
-              <span>Hoy</span>
+              <div className="w-4 h-4 bg-gray-200 dark:bg-gray-600 rounded"></div>
+              <span className="text-gray-700 dark:text-gray-300">Hoy</span>
             </div>
           </div>
         </div>
@@ -234,10 +234,25 @@ export default function InteractiveCalendar({ onIntervalConfirm, onDateRangeChan
           {/* Instrucciones */}
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
             <h4 className="font-semibold text-blue-800 dark:text-blue-300 mb-2">Instrucciones:</h4>
-            <div className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-              {!startDate && <p>• Haz clic en un día para seleccionar el inicio</p>}
-              {startDate && !endDate && <p>• Haz clic en otro día para seleccionar el fin</p>}
-              {startDate && endDate && <p>• Intervalo seleccionado. Confirma o selecciona uno nuevo</p>}
+            <div className="text-sm text-blue-700 dark:text-blue-300 space-y-2">
+              {!startDate && (
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>
+                  <p>Haz clic en un día para seleccionar el inicio del período</p>
+                </div>
+              )}
+              {startDate && !endDate && (
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                  <p>Ahora selecciona el día final del período</p>
+                </div>
+              )}
+              {startDate && endDate && (
+                <div className="flex items-center">
+                  <span className="w-2 h-2 bg-purple-500 rounded-full mr-2"></span>
+                  <p>¡Perfecto! Confirma el período o selecciona uno nuevo</p>
+                </div>
+              )}
             </div>
           </div>
 

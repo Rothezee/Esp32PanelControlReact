@@ -2,6 +2,7 @@ export interface Device {
   id: string
   name: string
   type: 'grua' | 'expendedora' | 'videojuego' | 'ticketera'
+  locality: string
   status: 'online' | 'offline' | 'unknown'
   lastHeartbeat: string
   data: DeviceData
@@ -56,6 +57,7 @@ export interface AuthResponse {
 export interface CreateDeviceRequest {
   name: string
   type: string
+  locality: string
   fields: Omit<DeviceField, 'id'>[]
 }
 

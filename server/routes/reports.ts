@@ -7,9 +7,6 @@ router.get('/', async (req, res) => {
   try {
     const { deviceId, startDate, endDate } = req.query
     
-    if (!deviceId) {
-      return res.status(400).json({ error: 'Device ID is required' })
-    }
 
     let query = `
       SELECT 
@@ -18,9 +15,14 @@ router.get('/', async (req, res) => {
         data,
         timestamp
       FROM device_data 
-      WHERE device_id = ?
+      WHERE 1=1
     `
-    const params: any[] = [deviceId]
+    const params: any[] = []
+
+    if (deviceId && deviceId !== 'all') {
+      query += ' AND device_id = ?'
+      params.push(deviceId)
+    }
 
     if (startDate && endDate) {
       query += ' AND DATE(timestamp) BETWEEN ? AND ?'

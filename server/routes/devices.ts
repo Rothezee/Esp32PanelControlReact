@@ -28,6 +28,7 @@ router.get('/', async (req, res) => {
         id,
         name,
         type,
+        locality,
         fields,
         last_heartbeat,
         created_at,
@@ -71,6 +72,7 @@ router.get('/', async (req, res) => {
         id: device.id,
         name: device.name,
         type: device.type,
+        locality: device.locality,
         status: device.status,
         lastHeartbeat: device.last_heartbeat,
         fields: parsedFields,
@@ -98,9 +100,9 @@ router.post('/', async (req, res) => {
     }))
 
     await dbRun(`
-      INSERT INTO devices (id, name, type, fields) 
-      VALUES (?, ?, ?, ?)
-    `, [id, deviceData.name, deviceData.type, JSON.stringify(fieldsWithIds)])
+      INSERT INTO devices (id, name, type, locality, fields) 
+      VALUES (?, ?, ?, ?, ?)
+    `, [id, deviceData.name, deviceData.type, deviceData.locality, JSON.stringify(fieldsWithIds)])
 
     res.json({ 
       id, 
@@ -134,9 +136,9 @@ router.put('/:id', async (req, res) => {
 
     const result = await dbRun(`
       UPDATE devices 
-      SET name = ?, type = ?, fields = ? 
+      SET name = ?, type = ?, locality = ?, fields = ? 
       WHERE id = ?
-    `, [deviceData.name, deviceData.type, JSON.stringify(fieldsWithIds), id])
+    `, [deviceData.name, deviceData.type, deviceData.locality, JSON.stringify(fieldsWithIds), id])
 
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Device not found' })

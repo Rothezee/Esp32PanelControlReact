@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useDevices } from '../hooks/useDevices'
-import { useAnalytics } from '../hooks/useAnalytics'
+import { useReports } from '../hooks/useReports'
 import Chart from '../components/Chart'
 import Calendar from '../components/Calendar'
 import { 
@@ -26,7 +26,31 @@ export default function AnalyticsPage() {
   const [showCalendar, setShowCalendar] = useState(false)
 
   const { data: devices, isLoading: devicesLoading } = useDevices()
-  const { data: analytics, isLoading: analyticsLoading, error } = useAnalytics(deviceId || undefined, period)
+  
+  // Get reports for analytics based on coin data
+  const startDate = (() => {
+    const date = new Date()
+    switch (period) {
+      case '24h':
+        date.setDate(date.getDate() - 1)
+        break
+      case '7d':
+        date.setDate(date.getDate() - 7)
+        break
+      case '30d':
+        date.setDate(date.getDate() - 30)
+        break
+      case '90d':
+        date.setDate(date.getDate() - 90)
+        break
+      default:
+        date.setDate(date.getDate() - 7)
+    }
+    return format(date, 'yyyy-MM-dd')
+  })()
+  
+  const endDate = format(new Date(), 'yyyy-MM-dd')
+  const { data: reports, isLoading: reportsLoading } = useReports(deviceId || 'all', startDate, endDate)
 
   const selectedDevice = deviceId ? devices?.find(d => d.id === deviceId) : null
 
@@ -52,7 +76,7 @@ export default function AnalyticsPage() {
   }
 
   // Loading state
-  if (devicesLoading || analyticsLoading) {
+  if (devicesLoading || reportsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="w-8 h-8 animate-spin text-primary-600" />
@@ -62,14 +86,6 @@ export default function AnalyticsPage() {
   }
 
   // Error state
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <AlertCircle className="w-8 h-8 text-red-600" />
-        <span className="ml-3 text-red-600">Error al cargar los datos de analytics</span>
-      </div>
-    )
-  }
 
   // Calculate metrics from devices data
   const totalDevices = devices?.length || 0
@@ -77,30 +93,42 @@ export default function AnalyticsPage() {
   const offlineDevices = devices?.filter(d => d.status === 'offline').length || 0
   const efficiency = totalDevices > 0 ? Math.round((onlineDevices / totalDevices) * 100) : 0
 
+  // Calculate coin analytics from reports
+  const totalCoins = reports?.reduce((sum, report) => {
+    const coinValue = report.data.coin || 0
+    return sum + coinValue
+  }, 0) || 0
+
+  const averageCoinsPerDay = (() => {
+    if (!reports || reports.length === 0) return 0
+    const days = Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24))
+    return Math.round(totalCoins / Math.max(days, 1))
+  })()
+
   const metrics = [
     {
-      title: 'Total Dispositivos',
-      value: totalDevices.toString(),
+      title: 'Total Coins',
+      value: totalCoins.toLocaleString(),
+      change: 0,
+      changeType: 'increase' as const,
+      icon: TrendingUp,
+      color: 'from-yellow-500 to-yellow-600',
+    },
+    {
+      title: 'Promedio Diario',
+      value: averageCoinsPerDay.toLocaleString(),
+      change: 0,
+      changeType: 'increase' as const,
+      icon: Activity,
+      color: 'from-green-500 to-green-600',
+    },
+    {
+      title: 'Dispositivos Activos',
+      value: onlineDevices.toString(),
       change: 0,
       changeType: 'increase' as const,
       icon: Activity,
       color: 'from-blue-500 to-blue-600',
-    },
-    {
-      title: 'En Línea',
-      value: onlineDevices.toString(),
-      change: 0,
-      changeType: 'increase' as const,
-      icon: TrendingUp,
-      color: 'from-green-500 to-green-600',
-    },
-    {
-      title: 'Desconectados',
-      value: offlineDevices.toString(),
-      change: 0,
-      changeType: 'decrease' as const,
-      icon: TrendingDown,
-      color: 'from-red-500 to-red-600',
     },
     {
       title: 'Eficiencia',
@@ -113,16 +141,43 @@ export default function AnalyticsPage() {
   ]
 
   // Chart data based on actual device data
-  const devicesByType = devices?.reduce((acc, device) => {
-    acc[device.type] = (acc[device.type] || 0) + 1
+  // Group reports by day and calculate daily coin totals
+  const dailyCoinData = reports?.reduce((acc, report) => {
+    const date = format(new Date(report.timestamp), 'yyyy-MM-dd')
+    const coins = report.data.coin || 0
+    acc[date] = (acc[date] || 0) + coins
     return acc
   }, {} as Record<string, number>) || {}
 
-  const deviceTypeLabels = Object.keys(devicesByType)
-  const deviceTypeCounts = Object.values(devicesByType)
+  const sortedDates = Object.keys(dailyCoinData).sort()
+  const dailyCoins = sortedDates.map(date => dailyCoinData[date])
+
+  // Group coins by device type
+  const coinsByType = reports?.reduce((acc, report) => {
+    const device = devices?.find(d => d.id === report.deviceId)
+    if (device) {
+      const coins = report.data.coin || 0
+      acc[device.type] = (acc[device.type] || 0) + coins
+    }
+    return acc
+  }, {} as Record<string, number>) || {}
+
+  const timeSeriesData = {
+    labels: sortedDates.map(date => format(new Date(date), 'dd/MM')),
+    datasets: [
+      {
+        label: 'Coins por Día',
+        data: dailyCoins,
+        borderColor: 'rgb(245, 158, 11)',
+        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+        fill: true,
+        tension: 0.4,
+      },
+    ],
+  }
 
   const barChartData = {
-    labels: deviceTypeLabels.map(type => {
+    labels: Object.keys(coinsByType).map(type => {
       switch (type) {
         case 'grua': return 'Grúas'
         case 'expendedora': return 'Expendedoras'
@@ -133,19 +188,19 @@ export default function AnalyticsPage() {
     }),
     datasets: [
       {
-        label: 'Dispositivos por Tipo',
-        data: deviceTypeCounts,
+        label: 'Coins por Tipo de Dispositivo',
+        data: Object.values(coinsByType),
         backgroundColor: [
-          'rgba(59, 130, 246, 0.8)',
-          'rgba(16, 185, 129, 0.8)',
           'rgba(245, 158, 11, 0.8)',
+          'rgba(16, 185, 129, 0.8)',
+          'rgba(59, 130, 246, 0.8)',
           'rgba(139, 92, 246, 0.8)',
           'rgba(236, 72, 153, 0.8)',
         ],
         borderColor: [
-          'rgb(59, 130, 246)',
-          'rgb(16, 185, 129)',
           'rgb(245, 158, 11)',
+          'rgb(16, 185, 129)',
+          'rgb(59, 130, 246)',
           'rgb(139, 92, 246)',
           'rgb(236, 72, 153)',
         ],
@@ -168,21 +223,6 @@ export default function AnalyticsPage() {
           'rgb(239, 68, 68)',
         ],
         borderWidth: 2,
-      },
-    ],
-  }
-
-  // Mock time series data - in a real app, this would come from analytics API
-  const timeSeriesData = {
-    labels: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
-    datasets: [
-      {
-        label: 'Dispositivos Activos',
-        data: [onlineDevices, onlineDevices + 1, onlineDevices - 1, onlineDevices + 2, onlineDevices, onlineDevices + 1, onlineDevices],
-        borderColor: 'rgb(59, 130, 246)',
-        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-        fill: true,
-        tension: 0.4,
       },
     ],
   }
@@ -318,7 +358,7 @@ export default function AnalyticsPage() {
             className="card p-6"
           >
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Actividad en el Tiempo
+              Coins por Día
             </h3>
             <Chart type="line" data={timeSeriesData} height={300} />
           </motion.div>
@@ -329,9 +369,9 @@ export default function AnalyticsPage() {
             className="card p-6"
           >
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Dispositivos por Tipo
+              Coins por Tipo de Dispositivo
             </h3>
-            {deviceTypeLabels.length > 0 ? (
+            {Object.keys(coinsByType).length > 0 ? (
               <Chart type="bar" data={barChartData} height={300} />
             ) : (
               <div className="flex items-center justify-center h-64 text-gray-500">
@@ -363,11 +403,15 @@ export default function AnalyticsPage() {
             className="card p-6"
           >
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              Resumen de Dispositivos
+              Top Dispositivos por Coins
             </h3>
             <div className="space-y-4">
-              {devices?.slice(0, 5).map((device) => (
-                <div key={device.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              {devices?.slice(0, 5).map((device) => {
+                const deviceCoins = reports?.filter(r => r.deviceId === device.id)
+                  .reduce((sum, r) => sum + (r.data.coin || 0), 0) || 0
+                
+                return (
+                <div key={device.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
                   <div className="flex items-center">
                     <div className={`w-3 h-3 rounded-full mr-3 ${
                       device.status === 'online' ? 'bg-green-500' : 
@@ -375,18 +419,21 @@ export default function AnalyticsPage() {
                     }`} />
                     <div>
                       <p className="font-medium text-gray-900">{device.name}</p>
-                      <p className="text-sm text-gray-500 capitalize">{device.type}</p>
+                      <p className="text-sm text-gray-500 capitalize">{device.type} - {device.locality}</p>
                     </div>
                   </div>
-                  <span className={`text-sm font-medium ${
-                    device.status === 'online' ? 'text-green-600' : 
-                    device.status === 'offline' ? 'text-red-600' : 'text-gray-600'
-                  }`}>
-                    {device.status === 'online' ? 'En línea' :
-                     device.status === 'offline' ? 'Desconectado' : 'Desconocido'}
-                  </span>
+                  <div className="text-right">
+                    <p className="font-bold text-yellow-600">{deviceCoins} coins</p>
+                    <p className={`text-xs ${
+                      device.status === 'online' ? 'text-green-600' : 
+                      device.status === 'offline' ? 'text-red-600' : 'text-gray-600'
+                    }`}>
+                      {device.status === 'online' ? 'En línea' :
+                       device.status === 'offline' ? 'Desconectado' : 'Desconocido'}
+                    </p>
+                  </div>
                 </div>
-              ))}
+              )})}
               {devices && devices.length > 5 && (
                 <p className="text-sm text-gray-500 text-center">
                   Y {devices.length - 5} dispositivos más...
@@ -431,7 +478,7 @@ export default function AnalyticsPage() {
             <div>
               <p className="text-sm font-medium text-gray-500">Tipo</p>
               <p className="text-lg font-semibold text-gray-900 capitalize">
-                {selectedDevice.type}
+                {selectedDevice.type} - {selectedDevice.locality}
               </p>
             </div>
             <div>
@@ -454,16 +501,53 @@ export default function AnalyticsPage() {
           
           {/* Device Data */}
           <div className="mt-6 pt-6 border-t border-gray-200">
-            <h4 className="text-md font-semibold text-gray-900 mb-3">Datos Actuales</h4>
+            <h4 className="text-md font-semibold text-gray-900 mb-3">Estadísticas del Período</h4>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {selectedDevice.fields.map((field) => (
-                <div key={field.id} className="bg-gray-50 p-3 rounded-lg">
-                  <p className="text-sm font-medium text-gray-500">{field.name}</p>
+              <div className="bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg">
+                <p className="text-sm font-medium text-gray-500">Total Coins</p>
+                <p className="text-lg font-semibold text-yellow-600">
+                  {reports?.filter(r => r.deviceId === selectedDevice.id)
+                    .reduce((sum, r) => sum + (r.data.coin || 0), 0) || 0}
+                </p>
+              </div>
+              <div className="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg">
+                <p className="text-sm font-medium text-gray-500">Eventos</p>
+                <p className="text-lg font-semibold text-blue-600">
+                  {reports?.filter(r => r.deviceId === selectedDevice.id).length || 0}
+                </p>
+              </div>
+              <div className="bg-green-50 dark:bg-green-900/20 p-3 rounded-lg">
+                <p className="text-sm font-medium text-gray-500">Promedio/Día</p>
+                <p className="text-lg font-semibold text-green-600">
+                  {Math.round((reports?.filter(r => r.deviceId === selectedDevice.id)
+                    .reduce((sum, r) => sum + (r.data.coin || 0), 0) || 0) / 
+                    Math.max(1, Math.ceil((new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24))))}
+                </p>
+              </div>
+              <div className="bg-purple-50 dark:bg-purple-900/20 p-3 rounded-lg">
+                <p className="text-sm font-medium text-gray-500">Estado</p>
+                <p className={`text-lg font-semibold ${
+                  selectedDevice.status === 'online' ? 'text-green-600' :
+                  selectedDevice.status === 'offline' ? 'text-red-600' : 'text-gray-600'
+                }`}>
+                  {selectedDevice.status === 'online' ? 'En línea' :
+                   selectedDevice.status === 'offline' ? 'Desconectado' : 'Desconocido'}
+                </p>
+              </div>
+            </div>
+            
+            <div className="mt-4">
+              <h5 className="text-sm font-semibold text-gray-900 mb-2">Datos Actuales del Dispositivo</h5>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {selectedDevice.fields.map((field) => (
+                  <div key={field.id} className="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg">
+                    <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{field.name}</p>
                   <p className="text-lg font-semibold text-gray-900">
                     {selectedDevice.data[field.key] ?? 'N/A'}
                   </p>
-                </div>
-              ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </motion.div>

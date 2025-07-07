@@ -41,6 +41,7 @@ export default function DeviceForm({ device, onSubmit, onCancel, isLoading }: De
     defaultValues: {
       name: device?.name || '',
       type: device?.type || '',
+      locality: device?.locality || '',
       fields: device?.fields || [
         { name: 'Coin', key: 'coin', type: 'number', required: true }
       ],
@@ -137,6 +138,19 @@ export default function DeviceForm({ device, onSubmit, onCancel, isLoading }: De
                   )}
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Localidad
+                  </label>
+                  <input
+                    {...register('locality')}
+                    className={`input ${errors.locality ? 'input-error' : ''}`}
+                    placeholder="Ej: Centro Comercial Plaza Norte"
+                  />
+                  {errors.locality && (
+                    <p className="text-sm text-red-600 mt-1">{errors.locality.message}</p>
+                  )}
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Tipo de Dispositivo

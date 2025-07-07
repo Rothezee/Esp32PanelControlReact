@@ -162,6 +162,7 @@ export default function DeviceCard({ device, onEdit }: DeviceCardProps) {
           <div className="ml-3">
             <h3 className="text-lg font-semibold text-gray-900">{device.name}</h3>
             <p className="text-sm text-gray-500 capitalize">{device.type}</p>
+            <p className="text-xs text-gray-400">{device.locality}</p>
           </div>
         </div>
       </div>
