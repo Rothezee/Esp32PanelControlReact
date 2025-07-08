@@ -31,6 +31,11 @@ export default function DeviceManagerPage() {
       await updateDevice.mutateAsync({
         id: editingDevice.id,
         ...data,
+        fields: data.fields.map((field, idx) => ({
+          // Try to preserve the id from the existing device if possible
+          id: editingDevice.fields?.[idx]?.id ?? '',
+          ...field,
+        })),
       })
       setEditingDevice(null)
     } catch (error) {

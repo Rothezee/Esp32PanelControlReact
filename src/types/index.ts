@@ -56,7 +56,7 @@ export interface AuthResponse {
 
 export interface CreateDeviceRequest {
   name: string
-  type: string
+  type: Device['type']
   locality: string
   fields: Omit<DeviceField, 'id'>[]
 }

@@ -85,7 +85,10 @@ export default function DeviceCard({ device, onEdit }: DeviceCardProps) {
   }
 
   const hasWarning = device.fields.some(field => 
-    field.key === 'banco' && device.data[field.key] && device.data[field.key] <= -10
+    device.data !== undefined &&
+    field.key === 'banco' &&
+    device.data[field.key] !== undefined &&
+    device.data && device.data[field.key] !== undefined && device.data[field.key]! <= -10
   )
 
   return (

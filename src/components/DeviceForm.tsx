@@ -40,7 +40,7 @@ export default function DeviceForm({ device, onSubmit, onCancel, isLoading }: De
     resolver: zodResolver(deviceSchema),
     defaultValues: {
       name: device?.name || '',
-      type: device?.type || '',
+      type: device?.type ?? undefined,
       locality: device?.locality || '',
       fields: device?.fields || [
         { name: 'Coin', key: 'coin', type: 'number', required: true }
