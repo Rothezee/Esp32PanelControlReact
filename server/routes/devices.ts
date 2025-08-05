@@ -102,7 +102,7 @@ router.post('/', async (req, res) => {
     await dbRun(`
       INSERT INTO devices (id, name, type, locality, fields) 
       VALUES (?, ?, ?, ?, ?)
-    `, [id, deviceData.name, deviceData.type, deviceData.locality, JSON.stringify(fieldsWithIds)])
+    `, [id, deviceData.name, deviceData.type, deviceData.locality || '', JSON.stringify(fieldsWithIds)])
 
     res.json({ 
       id, 
@@ -138,7 +138,7 @@ router.put('/:id', async (req, res) => {
       UPDATE devices 
       SET name = ?, type = ?, locality = ?, fields = ? 
       WHERE id = ?
-    `, [deviceData.name, deviceData.type, deviceData.locality, JSON.stringify(fieldsWithIds), id])
+    `, [deviceData.name, deviceData.type, deviceData.locality || '', JSON.stringify(fieldsWithIds), id])
 
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Device not found' })

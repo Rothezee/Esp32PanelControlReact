@@ -17,6 +17,7 @@ const deviceFieldSchema = z.object({
 const deviceSchema = z.object({
   name: z.string().min(1, 'El nombre es requerido'),
   type: z.string().min(1, 'El tipo es requerido'),
+  locality: z.string().optional(),
   fields: z.array(deviceFieldSchema).min(1, 'Al menos un campo es requerido'),
 })
 

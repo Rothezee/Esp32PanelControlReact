@@ -80,6 +80,7 @@ async function createTables() {
         id: 'ESP32_001', 
         name: 'Máquina 1', 
         type: 'grua',
+        locality: 'Centro Comercial Plaza Norte',
         fields: [
           { id: '1', name: 'Pesos', key: 'pesos', type: 'number', required: true },
           { id: '2', name: 'Coin', key: 'coin', type: 'number', required: true },
@@ -91,6 +92,7 @@ async function createTables() {
         id: 'ESP32_002', 
         name: 'Máquina 2', 
         type: 'grua',
+        locality: 'Mall del Sur',
         fields: [
           { id: '1', name: 'Pesos', key: 'pesos', type: 'number', required: true },
           { id: '2', name: 'Coin', key: 'coin', type: 'number', required: true },
@@ -102,6 +104,7 @@ async function createTables() {
         id: 'EXPENDEDORA_1', 
         name: 'Expendedora 1', 
         type: 'expendedora',
+        locality: 'Centro Comercial Unicentro',
         fields: [
           { id: '1', name: 'Fichas', key: 'fichas', type: 'number', required: true },
           { id: '2', name: 'Dinero', key: 'dinero', type: 'number', required: true },
@@ -111,6 +114,7 @@ async function createTables() {
         id: 'Videojuego_1', 
         name: 'Videojuego 1', 
         type: 'videojuego',
+        locality: 'Parque de Diversiones Central',
         fields: [
           { id: '1', name: 'Coin', key: 'coin', type: 'number', required: true },
         ]
@@ -119,6 +123,7 @@ async function createTables() {
         id: 'Ticket_1', 
         name: 'Ticketera 1', 
         type: 'ticketera',
+        locality: 'Centro Comercial Santafé',
         fields: [
           { id: '1', name: 'Coin', key: 'coin', type: 'number', required: true },
           { id: '2', name: 'Tickets', key: 'tickets', type: 'number', required: true },
@@ -128,11 +133,65 @@ async function createTables() {
 
     for (const device of sampleDevices) {
       await run(`
-        INSERT OR IGNORE INTO devices (id, name, type, fields) 
-        VALUES (?, ?, ?, ?)
-      `, [device.id, device.name, device.type, JSON.stringify(device.fields)])
+        INSERT OR IGNORE INTO devices (id, name, type, locality, fields) 
+        VALUES (?, ?, ?, ?, ?)
+      `, [device.id, device.name, device.type, device.locality, JSON.stringify(device.fields)])
     }
 
+    // Generate fictional test data for the last 30 days
+    const devices = await dbAll('SELECT id FROM devices')
+    const thirtyDaysAgo = new Date()
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+
+    for (const device of devices) {
+      for (let day = 0; day < 30; day++) {
+        const date = new Date(thirtyDaysAgo)
+        date.setDate(date.getDate() + day)
+        
+        // Generate 5-15 entries per day per device
+        const entriesPerDay = Math.floor(Math.random() * 11) + 5
+        
+        for (let entry = 0; entry < entriesPerDay; entry++) {
+          const entryTime = new Date(date)
+          entryTime.setHours(Math.floor(Math.random() * 24))
+          entryTime.setMinutes(Math.floor(Math.random() * 60))
+          
+          // Generate realistic data based on device type
+          let data = {}
+          const deviceInfo = sampleDevices.find(d => d.id === device.id)
+          
+          if (deviceInfo?.type === 'grua') {
+            data = {
+              pesos: Math.floor(Math.random() * 50) + 10,
+              coin: Math.floor(Math.random() * 20) + 1,
+              premios: Math.floor(Math.random() * 5),
+              banco: Math.floor(Math.random() * 200) - 50
+            }
+          } else if (deviceInfo?.type === 'expendedora') {
+            data = {
+              fichas: Math.floor(Math.random() * 100) + 20,
+              dinero: Math.floor(Math.random() * 500) + 100
+            }
+          } else if (deviceInfo?.type === 'videojuego') {
+            data = {
+              coin: Math.floor(Math.random() * 15) + 1
+            }
+          } else if (deviceInfo?.type === 'ticketera') {
+            data = {
+              coin: Math.floor(Math.random() * 10) + 1,
+              tickets: Math.floor(Math.random() * 50) + 10
+            }
+          }
+          
+          const entryId = `${device.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+          
+          await run(`
+            INSERT OR IGNORE INTO device_data (id, device_id, data, timestamp) 
+            VALUES (?, ?, ?, ?)
+          `, [entryId, device.id, JSON.stringify(data), entryTime.toISOString()])
+        }
+      }
+    }
     console.log('Database tables created successfully')
   } catch (error) {
     console.error('Error creating tables:', error)

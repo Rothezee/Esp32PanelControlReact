@@ -4,9 +4,7 @@ import react from '@vitejs/plugin-react'
 // https://vitejs.dev/config/
 export default defineConfig({
   // Solo usar base para GitHub Pages, comentar para Render
-  base: process.env.NODE_ENV === 'production' && process.env.GITHUB_PAGES 
-    ? "/Esp32PanelControlReact/" 
-    : "/",
+  base: "/",
   plugins: [react()],
   
   // Configuración del servidor para desarrollo
